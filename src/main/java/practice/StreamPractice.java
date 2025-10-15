@@ -1,8 +1,11 @@
 package practice;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.IntStream;
 import model.Candidate;
+import model.Cat;
 import model.Person;
 
 public class StreamPractice {
@@ -14,7 +17,14 @@ public class StreamPractice {
      * "Can't get min value from list: < Here is our input 'numbers' >"
      */
     public int findMinEvenNumber(List<String> numbers) {
-        return 0;
+        return numbers
+                .stream()
+                .map(e -> e.split(","))
+                .flatMap(Arrays::stream)
+                .mapToInt(Integer::parseInt)
+                .filter(i -> i % 2 == 0)
+                .min()
+                .orElseThrow(() -> new RuntimeException("Can't get min value from list"));
     }
 
     /**
@@ -23,7 +33,17 @@ public class StreamPractice {
      * But before that subtract 1 from each element on an odd position (having the odd index).
      */
     public Double getOddNumsAverage(List<Integer> numbers) {
-        return 0D;
+        return IntStream.range(0, numbers.size())
+                .map(i -> {
+                    int ival = numbers.get(i);
+                    if (i % 2 != 0) {
+                        ival--;
+                    }
+                    return ival;
+                })
+                .filter(n -> n % 2 != 0)
+                .average()
+                .orElseThrow(NoSuchElementException::new);
     }
 
     /**
@@ -35,7 +55,11 @@ public class StreamPractice {
      * Example: select men who can be recruited to army (from 18 to 27 years old inclusively).
      */
     public List<Person> selectMenByAge(List<Person> peopleList, int fromAge, int toAge) {
-        return Collections.emptyList();
+        return peopleList.stream()
+                .filter(p -> p.getSex().equals(Person.Sex.MAN)
+                        && p.getAge() > fromAge
+                        && p.getAge() <= toAge)
+                .toList();
     }
 
     /**
@@ -50,7 +74,17 @@ public class StreamPractice {
      */
     public List<Person> getWorkablePeople(int fromAge, int femaleToAge,
                                           int maleToAge, List<Person> peopleList) {
-        return Collections.emptyList();
+        return peopleList.stream()
+                .filter(p -> isWorkable(p, fromAge, maleToAge, femaleToAge))
+                .toList();
+    }
+
+    private boolean isWorkable(Person p, int fromAge,
+                               int maleToAge, int femaleToAge) {
+        return (p.getSex() == Person.Sex.MAN && p.getAge() <= maleToAge
+                && p.getAge() >= fromAge)
+                || (p.getSex() == Person.Sex.WOMAN && p.getAge() <= femaleToAge
+                && p.getAge() >= fromAge);
     }
 
     /**
@@ -59,7 +93,13 @@ public class StreamPractice {
      * return the names of all cats whose owners are women from `femaleAge` years old inclusively.
      */
     public List<String> getCatsNames(List<Person> peopleList, int femaleAge) {
-        return Collections.emptyList();
+        return peopleList.stream()
+                .filter(p -> p.getSex().equals(Person.Sex.WOMAN)
+                        && p.getAge() >= femaleAge
+                        && !p.getCats().isEmpty())
+                .flatMap(p -> p.getCats().stream())
+                .map(Cat::getName)
+                .toList();
     }
 
     /**
@@ -74,7 +114,12 @@ public class StreamPractice {
      * We want to reuse our validation in future, so let's write our own impl of Predicate
      * parametrized with Candidate in CandidateValidator.
      */
+
     public List<String> validateCandidates(List<Candidate> candidates) {
-        return Collections.emptyList();
+        return candidates.stream()
+                .filter(new CandidateValidator())
+                .map(Candidate::getName)
+                .sorted()
+                .toList();
     }
 }
