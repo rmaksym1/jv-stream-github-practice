@@ -19,8 +19,7 @@ public class StreamPractice {
     public int findMinEvenNumber(List<String> numbers) {
         return numbers
                 .stream()
-                .map(e -> e.split("\\s*,\\s*"))
-                .flatMap(Arrays::stream)
+                .flatMap(e -> Arrays.stream(e.split("\\s*,\\s*")))
                 .mapToInt(Integer::parseInt)
                 .filter(i -> i % 2 == 0)
                 .min()
@@ -36,13 +35,7 @@ public class StreamPractice {
      */
     public Double getOddNumsAverage(List<Integer> numbers) {
         return IntStream.range(0, numbers.size())
-                .map(i -> {
-                    int ival = numbers.get(i);
-                    if (i % 2 != 0) {
-                        ival--;
-                    }
-                    return ival;
-                })
+                .map(i -> i % 2 != 0 ? numbers.get(i) - 1 : numbers.get(i))
                 .filter(n -> n % 2 != 0)
                 .average()
                 .orElseThrow(NoSuchElementException::new);
@@ -81,14 +74,6 @@ public class StreamPractice {
                 .toList();
     }
 
-    private boolean isWorkable(Person p, int fromAge,
-                               int maleToAge, int femaleToAge) {
-        return (p.getSex() == Person.Sex.MAN && p.getAge() <= maleToAge
-                && p.getAge() >= fromAge)
-                || (p.getSex() == Person.Sex.WOMAN && p.getAge() <= femaleToAge
-                && p.getAge() >= fromAge);
-    }
-
     /**
      * Given a List of `Person` instances (having `name`, `age`, `sex` and `cats` fields,
      * and each `Cat` having a `name` and `age`),
@@ -123,5 +108,13 @@ public class StreamPractice {
                 .map(Candidate::getName)
                 .sorted()
                 .toList();
+    }
+
+    private boolean isWorkable(Person p, int fromAge,
+                               int maleToAge, int femaleToAge) {
+        return (p.getSex() == Person.Sex.MAN && p.getAge() <= maleToAge
+                && p.getAge() >= fromAge)
+                || (p.getSex() == Person.Sex.WOMAN && p.getAge() <= femaleToAge
+                && p.getAge() >= fromAge);
     }
 }
